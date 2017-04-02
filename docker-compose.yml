@@ -1,0 +1,47 @@
+deepstream:
+  build: .
+  dockerfile: Dockerfile
+  command: deepstream start
+  ports:
+    - "6020:6020"
+    - "6021:6021"
+  links:
+    - redis
+    - rabbitmq
+    - mongodb
+  volumes:
+    - ./socket/config.yml:/etc/deepstream/config.yml
+    - ./socket/permissions.yml:/etc/deepstream/permissions.yml
+    - ./socket/users.yml:/etc/deepstream/users.yml
+    - ./logs/deepstream:/var/log/deepstream/deepstream
+# keycloak:
+#   image: jboss/keycloak
+#   environment:
+#     KEYCLOAK_USER: "admin"
+#     KEYCLOAK_PASSWORD: "admin"
+#   ports:
+#     - "8080:8080"
+mongodb:  
+  image: mongo:latest
+  volumes:
+    - ./mongo/db:/data/db
+  ports:
+    - "27017:27017"
+redis:
+  image: redis:latest
+  ports:
+    - "6379:6379"
+rabbitmq:
+  hostname: rabbitmq
+  image: rabbitmq:3.6-management
+  environment:
+    RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+    RABBITMQ_DEFAULT_USER: "rabbitmq"
+    RABBITMQ_DEFAULT_PASS: "rabbitmq"
+    RABBITMQ_DEFAULT_VHOST: "/"
+  ports:
+    - "5672:5672"
+    - "25672:25672"
+    - "15672:15672"
+  volumes:
+    - "./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins"
